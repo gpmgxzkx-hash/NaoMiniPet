@@ -1,0 +1,22 @@
+workflows:
+  nao-mini-pet:
+    name: NaoMiniPet APK
+    max_build_duration: 30
+    instance_type: linux_x2
+    scripts:
+      - name: Unpack Android project
+        script: |
+          rm -rf "$CM_BUILD_DIR/project"
+          mkdir -p "$CM_BUILD_DIR/project"
+          unzip -q "$CM_BUILD_DIR/NaoMiniPet_Project_v0.6.zip" -d "$CM_BUILD_DIR/project"
+      - name: Set Android SDK location
+        script: |
+          echo "sdk.dir=$ANDROID_SDK_ROOT" > "$CM_BUILD_DIR/project/local.properties"
+      - name: Build debug APK
+        script: |
+          cd "$CM_BUILD_DIR/project"
+          wget -q https://services.gradle.org/distributions/gradle-8.9-bin.zip -O /tmp/gradle.zip
+          unzip -q /tmp/gradle.zip -d /tmp
+          /tmp/gradle-8.9/bin/gradle --no-daemon :app:assembleDebug
+    artifacts:
+      - project/app/build/outputs/apk/debug/app-debug.apk
